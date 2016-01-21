@@ -1,7 +1,7 @@
 ---
 title: 'Psych 254 W15 PS #1'
-author: "Mike Frank"
-date: "January 11, 2015"
+author: "Rhia Catapano"
+date: "January 21, 2015"
 output: html_document
 ---
 
@@ -17,30 +17,65 @@ In the data frame, the `Input.condition` variable represents the experimental co
 Preliminaries
 -------------
 
-I pretty much always clear the workspace and load the same basic helper functions before starting an analysis.
+We begin by clearing the working directory and loading in a set of useful packages.
 
 ```{r prelims}
 rm(list=ls())
 source("helper/useful.R")
 ```
 
-Note that I'm using a "relative" path (the "helper") rather than an absolute path (e.g. "/Users/mcfrank/code/projects/etc..."). The relative path means that someone else can run your code by changing to the right directory, while the absolute path will force someone else to make trivial changes every time they want to run it.
 
 Part 1: Data cleaning
 ---------------------
 
-The first part of this exercise actually just consists of getting the data in a format usable for analysis. This is not trivial. Let's try it:
-
+Load in data
 ```{r data1}
-d <- read.csv("data/janiszewski_rep_exercise.csv")
+dat <- read.csv("data/janiszewski_rep_exercise.csv")
+dat_original <- dat
 ```
 
-Fine, right? Why can't we go forward with the analysis?
+Check for duplicates
+```{r}
+dat[duplicated(dat),]
+#there are no rows that are completely duplicated
 
-HINT: try computing some summary statistics for the different items. Also, are there any participants that did the task more than once?
+duplicates <- dat[duplicated(dat$WorkerId),]
+duplicates
+#however, there are duplicate IDs (48,58, 62)
 
+dat <- dat[!duplicated(dat$WorkerId),]
+#so, we want the data frame with all of the duplicates removed
+```
 
-Fix the data file *programmatically*, i.e., write code that transforms the unclean data frame into a clean data frame.
+Check structure/data types
+```{r}
+str(dat)
+#it looks like the 3 problematic columns are dog_cost, plasma_cost, and sushi_cost. These three should be numeric, but instead are factors.
+```
+
+Make incorrectly factored variables into numeric
+```{r}
+#Clean up the answers in dog_cost
+dat[which(dat$Answer.dog_cost == "five hundred"),]$Answer.dog_cost <- 500
+dat[which(dat$Answer.dog_cost == "2,000"), ]$Answer.dog_cost <- 2000
+dat[which(dat$Answer.dog_cost == "2499.99"), ]$Answer.dog_cost <- round(as.numeric(as.character(dat[which(dat$Answer.dog_cost == "2499.99"), ]$Answer.dog_cost)))
+dat$Answer.dog_cost <- as.numeric(as.character(dat$Answer.dog_cost))
+
+#Clean up the answers in plasma_cost
+dat[which(dat$Answer.plasma_cost == "4999.99"), ]$Answer.plasma_cost <- round(as.numeric(as.character(dat[which(dat$Answer.plasma_cost == "4999.99"), ]$Answer.plasma_cost)))
+dat[which(dat$Answer.plasma_cost == "0.45"), ]$Answer.plasma_cost <- 4500
+#in my own data sets I'd probably exclude this person instead of assuming what they meant, but based on the cleaned version, it seems like we're assuming that they meant 4500.
+dat[which(dat$Answer.plasma_cost == "4,000"), ]$Answer.plasma_cost <- 4000
+dat$Answer.plasma_cost <- as.numeric(as.character(dat$Answer.plasma_cost))
+
+#Clean up answers in sushi_cost
+dat[which(dat$Answer.sushi_cost == "ehight"), ]$Answer.sushi_cost <- 8
+dat[which(dat$Answer.sushi_cost == "7,75"), ]$Answer.sushi_cost <- 7.75
+dat$Answer.sushi_cost <- as.numeric(as.character(dat$Answer.sushi_cost))
+
+write.csv(dat, "janiszewski_rep_cleaned_Rhia.csv")
+```
+
 
 
 Part 2: Making these data tidy
