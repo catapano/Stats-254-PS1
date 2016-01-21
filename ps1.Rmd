@@ -81,49 +81,33 @@ write.csv(dat, "janiszewski_rep_cleaned_Rhia.csv")
 Part 2: Making these data tidy
 ------------------------------
 
-Now let's start with the cleaned data, so that we are all beginning from the same place.
-
+Load in the data
 ```{r data2}
-d2 <- read.csv("data/janiszewski_rep_cleaned.csv")
+dat2 <- read.csv("data/janiszewski_rep_cleaned.csv")
 ```
 
-This data frame is in *wide* format - that means that each row is a participant and there are multiple observations per participant. This data is not *tidy*.
-
-To make this data tidy, we'll do some cleanup. First, remove the columns you don't need, using the verb `select`.
-
-HINT: `?select` and the examples of helper functions will help you be efficient.
-
+Remove columns we don't need and rename variables
 ```{r select}
-d.tidy <- select(...)
+d.tidy <- dat2 %>% 
+  select(WorkerId, Input.condition, 
+         starts_with("Answer")) %>%
+  rename(workerid = WorkerId,
+         condition = Input.condition,          
+         dog_cost = Answer.dog_cost,
+         plasma_cost = Answer.plasma_cost, 
+         sushi_cost = Answer.sushi_cost)
 ```
 
-
-Try renaming some variables using `rename`. A good naming scheme is:
-
-* consistent with case
-* consistent with "." or "_" ( "_" is usually preferred)
-* concise as will be comprehensible to others
-
-Try using the `%>%` operator as well. So you will be "piping" `d %>% rename(...)`.
-
-```{r rename}
-d.tidy <- ...
+Gather the data into a tidy data frame
+```{r}
+d.gathered <- d.tidy %>%
+  gather(type, cost, dog_cost, plasma_cost, sushi_cost)
 ```
 
-
-OK, now for the tricky part. Use the verb *gather* to turn this into a *tidy* data frame.
-
-HINT: look for online examples!
-
-```{r gather}
-d.tidy <- ...
-```
-
-
-Bonus problem: *spread* these data back into a wide format data frame.
-
+Spread into a wide format
 ```{r spread}
-d.wide <- ...
+d.wide <- d.gathered %>%
+  spread(type, cost)
 ```
 
 
