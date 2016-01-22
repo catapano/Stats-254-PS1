@@ -178,11 +178,12 @@ Computing z-scores over items
 
 ```{r}
 z.scores <- d.tidy %>% 
-  group_by(item) %>%
-  ungroup() %>%
-  mutate(zscore = scale(cost)[,1]) %>%
-  group_by(item, condition) %>%
-  summarise("z" = mean(zscore, na.rm=TRUE))
+ mutate(change = anchor - cost) %>%
+ group_by(item) %>%
+ mutate(scaled = scale(change)[,1]) %>%
+ ungroup()  %>%   
+ group_by(item, condition, add=FALSE) %>%
+ summarize("groupmeans"=mean(scaled,na.rm=TRUE) )
 ```
 
 
@@ -200,7 +201,7 @@ qplot(item, percentchange, fill=condition,
 and the z-scores:
 
 ```{r}
-qplot(item, z, fill=condition, 
+qplot(item, groupmeans, fill=condition, 
       position="dodge",
       stat="identity", geom="bar", 
       data=z.scores)  
