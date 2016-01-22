@@ -110,9 +110,15 @@ Part 3: Manipulating the data using dplyr
 
 Histogram representing the number of people in each price range for each item.
 
-```{r}
+```{r, warning=FALSE, message=FALSE}
 ggplot(d.gathered, aes(x=cost, fill=type)) +
     geom_histogram(position="dodge")
+
+#Histogram
+ggplot(data=d.gathered, aes(x=cost, fill=condition)) + facet_wrap(~type, scale="free") + geom_histogram(position="dodge", bins=8)
+
+#Density Distribution
+ggplot(data=d.gathered, aes(x=cost, fill=condition)) + facet_wrap(~type, scale="free") + geom_density(alpha=0.5)
 ```
 
 Based on our histogram, we can see that all participants gave a low WTP for sushi, a mid-range WTP for dog, and a high WTP for a plasma TV.
@@ -192,19 +198,24 @@ Plot the differences and see if anything happened.
 First the percent change:
 
 ```{r}
-qplot(item, percentchange, fill=condition, 
-      position="dodge",
-      stat="identity", geom="bar", 
-      data=pcts)  
+#qplot was removed in the most recent version of ggplot
+#qplot(item, percentchange, fill=condition, 
+ #     position="dodge",
+  #    stat="identity", geom="bar", 
+   #   data=pcts)  
+
+ggplot(data=pcts, aes(x=item, y=percentchange, fill=condition)) + geom_bar(stat="identity", position="dodge")
 ```
 
 and the z-scores:
 
 ```{r}
-qplot(item, groupmeans, fill=condition, 
-      position="dodge",
-      stat="identity", geom="bar", 
-      data=z.scores)  
+#qplot(item, groupmeans, fill=condition, 
+ #     position="dodge",
+  #    stat="identity", geom="bar", 
+   #   data=z.scores)  
+
+ggplot(data=z.scores, aes(x=item, y=groupmeans, fill=condition)) + geom_bar(stat="identity", position="dodge")
 ```
 
 This replication didn't seem to work out straightforwardly. 
